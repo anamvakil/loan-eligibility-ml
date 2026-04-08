@@ -13,41 +13,25 @@ logger = logging.getLogger(__name__)
 
 
 def impute_missing_values(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Fill missing values using domain-appropriate strategies:
-    - Categorical columns: mode imputation
-    - LoanAmount (numerical with outliers): median imputation
-    - Gender: hardcoded to 'Male' (most frequent)
-
-    Args:
-        df: Raw DataFrame.
-
-    Returns:
-        DataFrame with no missing values.
-    """
     df = df.copy()
 
-    # Impute BEFORE casting — NaN-safe operations first
     df["Gender"].fillna("Male", inplace=True)
     df["Married"].fillna(df["Married"].mode()[0], inplace=True)
     df["Dependents"].fillna(df["Dependents"].mode()[0], inplace=True)
     df["Self_Employed"].fillna(df["Self_Employed"].mode()[0], inplace=True)
-    df["Loan_Amount_Term"].fillna(df["Loan_Amount_Term"].mode()[0], inplace=True)
-    df["Credit_History"].fillna(df["Credit_History"].mode()[0], inplace=True)
+    df["Loan_Amount_Term"].fillna(360.0, inplace=True)
+    df["Credit_History"].fillna(1.0, inplace=True)
+    df["LoanAmount"].fillna(df["LoanAmount"].median(), inplace=True)
 
-    median_val = df["LoanAmount"].median()
-    df["LoanAmount"].fillna(median_val, inplace=True)
-    logger.debug("Imputed 'LoanAmount' with median: %.2f", median_val)
+    # DO NOT cast to object — keep as numeric so sklearn doesn't get NaN
+    # df["Credit_History"] = df["Credit_History"].astype("object")  ← removed
+    # df["Loan_Amount_Term"] = df["Loan_Amount_Term"].astype("object")  ← removed
 
-    # Cast AFTER NaNs are gone — safe to convert to object now
-    df["Credit_History"] = df["Credit_History"].astype("object")
-    df["Loan_Amount_Term"] = df["Loan_Amount_Term"].astype("object")
-
-    remaining_nulls = df.isnull().sum().sum()
-    if remaining_nulls > 0:
-        logger.warning("Still %d null values after imputation.", remaining_nulls)
-    else:
-        logger.info("All missing values successfully imputed.")
+    # Catch-all: fill anything still missing
+    for col in df.select_dtypes(include="number").columns:
+        df[col].fillna(df[col].median(), inplace=True)
+    for col in df.select_dtypes(include="object").columns:
+        df[col].fillna(df[col].mode()[0], inplace=True)
 
     return df
 

@@ -128,7 +128,7 @@ All runtime events are written to `logs/loan_eligibility.log` and echoed to the 
 
 ## Live Demo
 
-Deployed on Streamlit Cloud: **[INSERT LINK AFTER DEPLOYMENT]**
+Deployed on Streamlit Cloud: **[(https://loan-eligibility-anamvakil-project.streamlit.app/)]**
 
 ---
 

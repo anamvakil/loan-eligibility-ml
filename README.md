@@ -46,7 +46,7 @@ loan-eligibility/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/loan-eligibility.git
+git clone https://github.com/anamvakil/loan-eligibility.git
 cd loan-eligibility
 ```
 
